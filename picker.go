@@ -39,6 +39,12 @@ type BallData struct {
 	CaughtByID   string `json:"caughtById"`
 }
 
+type BallByBall struct {
+	MatchID     string         `json:"matchId"`
+	Player      map[string]int `json:"players"`
+	IsCompleted bool           `json:"isCompleted"`
+}
+
 func (bp *BallPicker) NewBallPicker() *BallPicker {
 	return &BallPicker{
 		SummaryFile: "ball_by_ball_ipl.json",
@@ -68,21 +74,22 @@ func (bp *BallPicker) StartMatch() {
 		}
 		// Print ball data
 		fmt.Printf("Ball %d: %s to %s, %s runs\n", ball.BallNo, ball.Bowler, ball.Batter, ball.RunsFromBall)
-
-		response := struct {
-			Players map[string]int `json:"players"`
-			MatchID string         `json:"matchId"`
-		}{
-			Players: bp.FantasyCalc.CalculatePoints(&ball),
-			MatchID: ball.MatchID,
+		ballByBall := BallByBall{
+			Player:      bp.FantasyCalc.CalculatePoints(&ball),
+			MatchID:     ball.MatchID,
+			IsCompleted: false,
 		}
-		fmt.Println(response)
-		respCode := PostRequest("http://localhost:8080/points", response)
+
+		respCode := PostRequest("http://localhost:8080/points", ballByBall)
 		fmt.Printf("Response code: %d\n", respCode)
 
 		//TODO: Handler Error
 
 	}
+
+	PostRequest("http://localhost:8080/points", BallByBall{
+		IsCompleted: true,
+	})
 }
 
 func loadBallsIntoMap(filename string) (map[int]BallData, error) {
