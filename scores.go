@@ -10,7 +10,7 @@ func (app *App) GetScores(w http.ResponseWriter, r *http.Request) {
 	bp := (&BallPicker{}).NewBallPicker()
 
 	// Start the match
-	go bp.StartMatch()
+	go bp.StartMatch(app.ch)
 	// Write scores to response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

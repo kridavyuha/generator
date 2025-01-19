@@ -1,13 +1,22 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/cors"
 )
 
 type App struct {
+	ch *amqp.Channel
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }
 
 func main() {
@@ -15,6 +24,17 @@ func main() {
 	app := &App{}
 
 	r := chi.NewRouter()
+
+	// initialize a ampq connection
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	app.ch = ch
 
 	// CORS middleware configuration
 	r.Use(cors.New(cors.Options{

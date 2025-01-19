@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
+	amqp "github.com/rabbitmq/amqp091-go"
 	"golang.org/x/exp/rand"
 )
 
@@ -54,13 +56,27 @@ func (bp *BallPicker) NewBallPicker() *BallPicker {
 	}
 }
 
-func (bp *BallPicker) StartMatch() {
+func (bp *BallPicker) StartMatch(ch *amqp.Channel) {
 	// Load balls from file
 	balls, err := loadBallsIntoMap(bp.SummaryFile)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
+	err = ch.ExchangeDeclare(
+		"balls", // name
+		"fanout",       // type
+		true,           // durable
+		false,          // auto-deleted
+		false,          // internal
+		false,          // no-wait
+		nil,            // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// Loop through balls
 	for i := bp.Offset; i <= len(balls); i++ {
@@ -79,9 +95,28 @@ func (bp *BallPicker) StartMatch() {
 			MatchID:     ball.MatchID,
 			IsCompleted: false,
 		}
+		fmt.Println(ballByBall)
 
-		respCode := PostRequest("http://localhost:8080/points", ballByBall)
-		fmt.Printf("Response code: %d\n", respCode)
+		// respCode := PostRequest("http://localhost:8080/points", ballByBall)
+		// fmt.Printf("Response code: %d\n", respCode)
+
+		// Publish message
+		body, err := json.Marshal(ballByBall)
+		if err != nil {
+			fmt.Printf("Error marshalling ballByBall: %v\n", err)
+			continue
+		}
+
+		err = ch.PublishWithContext(ctx,
+			"balls", // exchange
+			"",             // routing key
+			false,          // mandatory
+			false,          // immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(body),
+			})
+		failOnError(err, "Failed to publish a message")
 
 		//TODO: Handler Error
 

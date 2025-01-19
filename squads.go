@@ -2,17 +2,18 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 )
 
 type Squad struct {
 	Team    string          `json:"team"`
-	Players []PlayerInSquad `json:"players"`
+	Players []PlayerDetails `json:"players"`
 	Id      int             `json:"id"`
 }
 
-type PlayerInSquad struct {
+type PlayerDetails struct {
 	Name string `json:"name"`
 	Id   string `json:"id"`
 }
@@ -37,6 +38,8 @@ func (app *App) GetSquads(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse squads data", http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println("squads: ", squads)
 
 	var squadFound *Squad
 	for _, squad := range squads {
