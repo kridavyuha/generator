@@ -3,8 +3,10 @@ package main
 // Get fixtures from the API
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // Fixture struct
@@ -29,7 +31,12 @@ func (app *App) GetFixtures(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read fixtures.json file
-	data, err := ioutil.ReadFile("/Users/rithvik/Documents/Strategic Fantasy League/Generator/fixtures.json")
+	cwd, err := os.Getwd()
+	if err != nil {
+		http.Error(w, "Unable to get current working directory", http.StatusInternalServerError)
+		return
+	}
+	data, err := ioutil.ReadFile(fmt.Sprintf("%s/fixtures.json", cwd))
 	if err != nil {
 		http.Error(w, "Unable to read fixtures file", http.StatusInternalServerError)
 		return

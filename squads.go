@@ -26,7 +26,13 @@ func (app *App) GetSquads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.ReadFile("/Users/rithvik/Documents/Strategic Fantasy League/Generator/squads.json")
+	cwd, err := os.Getwd()
+	if err != nil {
+		http.Error(w, "Unable to get current working directory", http.StatusInternalServerError)
+		return
+	}
+
+	file, err := os.ReadFile(fmt.Sprintf("%s/squads.json", cwd))
 	if err != nil {
 		http.Error(w, "Unable to read squads file", http.StatusInternalServerError)
 		return
