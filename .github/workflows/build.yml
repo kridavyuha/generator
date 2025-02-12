@@ -31,7 +31,7 @@ jobs:
           go mod download
 
       - name: Build code
-        run: GOOS=linux GOARCH=amd64 go build -o myapp_amd64 *.go
+        run: GOOS=linux GOARCH=amd64 go build -o generator_amd64 *.go
       
       - name: SCP and Copy code
         env:
