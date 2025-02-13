@@ -36,7 +36,7 @@ func (app *App) GetFixtures(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to get current working directory", http.StatusInternalServerError)
 		return
 	}
-	data, err := ioutil.ReadFile(fmt.Sprintf("%s/fixtures.json", cwd))
+	data, err := ioutil.ReadFile(fmt.Sprintf("%s/data/fixtures.json", cwd))
 	if err != nil {
 		http.Error(w, "Unable to read fixtures file", http.StatusInternalServerError)
 		return

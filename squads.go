@@ -32,7 +32,7 @@ func (app *App) GetSquads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.ReadFile(fmt.Sprintf("%s/squads.json", cwd))
+	file, err := os.ReadFile(fmt.Sprintf("%s/data/squads.json", cwd))
 	if err != nil {
 		http.Error(w, "Unable to read squads file", http.StatusInternalServerError)
 		return

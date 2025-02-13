@@ -51,8 +51,8 @@ type Player struct {
 
 func (fc *FantasyCalc) NewFantasyCalc() *FantasyCalc {
 	return &FantasyCalc{
-		RulesFile: "rules.json",
-		TeamFile:  "team.json",
+		RulesFile: "./data/rules.json",
+		TeamFile:  "./data/team.json",
 	}
 }
 

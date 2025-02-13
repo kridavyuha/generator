@@ -49,7 +49,7 @@ type BallByBall struct {
 
 func (bp *BallPicker) NewBallPicker() *BallPicker {
 	return &BallPicker{
-		SummaryFile: "ball_by_ball_ipl.json",
+		SummaryFile: "./data/ball_by_ball_ipl.json",
 		Offset:      1,
 		MaxDelay:    30,
 		FantasyCalc: (&FantasyCalc{}).NewFantasyCalc(),
@@ -65,13 +65,13 @@ func (bp *BallPicker) StartMatch(ch *amqp.Channel) {
 	}
 
 	err = ch.ExchangeDeclare(
-		"balls", // name
-		"fanout",       // type
-		true,           // durable
-		false,          // auto-deleted
-		false,          // internal
-		false,          // no-wait
-		nil,            // arguments
+		"balls",  // name
+		"fanout", // type
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // no-wait
+		nil,      // arguments
 	)
 	failOnError(err, "Failed to declare an exchange")
 
@@ -109,9 +109,9 @@ func (bp *BallPicker) StartMatch(ch *amqp.Channel) {
 
 		err = ch.PublishWithContext(ctx,
 			"balls", // exchange
-			"",             // routing key
-			false,          // mandatory
-			false,          // immediate
+			"",      // routing key
+			false,   // mandatory
+			false,   // immediate
 			amqp.Publishing{
 				ContentType: "text/plain",
 				Body:        []byte(body),
