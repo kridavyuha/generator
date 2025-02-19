@@ -41,9 +41,9 @@ type BallData struct {
 	CaughtByID   string `json:"caughtById"`
 }
 
-type BallByBall struct {
-	MatchID     string         `json:"matchId"`
-	Player      map[string]int `json:"players"`
+type PerfDetails struct {
+	PerfFactor  map[string]int `json:"perf_factor"`
+	MatchID     string         `json:"match_id"`
 	IsCompleted bool           `json:"isCompleted"`
 }
 
@@ -90,8 +90,8 @@ func (bp *BallPicker) StartMatch(ch *amqp.Channel) {
 		}
 		// Print ball data
 		fmt.Printf("Ball %d: %s to %s, %s runs\n", ball.BallNo, ball.Bowler, ball.Batter, ball.RunsFromBall)
-		ballByBall := BallByBall{
-			Player:      bp.FantasyCalc.CalculatePoints(&ball),
+		ballByBall := PerfDetails{
+			PerfFactor:  bp.FantasyCalc.CalculatePoints(&ball),
 			MatchID:     ball.MatchID,
 			IsCompleted: false,
 		}
@@ -122,7 +122,7 @@ func (bp *BallPicker) StartMatch(ch *amqp.Channel) {
 
 	}
 
-	PostRequest("http://localhost:8080/points", BallByBall{
+	PostRequest("http://localhost:8080/points", PerfDetails{
 		IsCompleted: true,
 	})
 }
